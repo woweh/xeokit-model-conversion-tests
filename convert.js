@@ -24,11 +24,8 @@ const configs = JSON.parse(configsData);
             os: await si.osInfo()
         };
 
-        const resultsInfo = {
-            conversions: []
-        }
 
-        fs.writeFileSync("./results/systemInfo.json", JSON.stringify(systemInfo, null, "\t"), {encoding: 'utf8'});
+        fs.writeFileSync("./results/systemInfo.json", JSON.stringify(systemInfo, null, "\t"), { encoding: 'utf8' });
 
         fs.writeFileSync("./_includes/systemInfo.html",
             `@@include('../_includes/systemInfoCard.html', { 
@@ -58,7 +55,7 @@ const configs = JSON.parse(configsData);
                 console.log("Converting batch: " + inputBatchDirPath);
                 const outputBatchDirPath = path.join(resultsDir, inputBatchDir);
                 if (fs.existsSync(outputBatchDirPath)) {
-                    fs.rmSync(outputBatchDirPath, {recursive: true, force: true});
+                    fs.rmSync(outputBatchDirPath, { recursive: true, force: true });
                 }
                 fs.mkdirSync(outputBatchDirPath);
 
@@ -96,7 +93,7 @@ const configs = JSON.parse(configsData);
                         const modelResultsDirPath = `${outputBatchDirPath}/${inputFileName}/`;
 
                         if (fs.existsSync(modelResultsDirPath)) {
-                            fs.rmSync(modelResultsDirPath, {recursive: true, force: true});
+                            fs.rmSync(modelResultsDirPath, { recursive: true, force: true });
                         }
 
                         fs.mkdirSync(modelResultsDirPath);
@@ -115,8 +112,6 @@ const configs = JSON.parse(configsData);
                         const xktCommunity1PathAbs = `${__dirname}/${xktCommunity1Path}`;
                         const logCommunity1Path = path.join(community1Path, `log.txt`);
                         const logCommunity1PathAbs = `${__dirname}/${logCommunity1Path}`;
-                        const summaryCommunity1Path = path.join(community1Path, `summary.json`);
-                        const summaryCommunity1PathAbs = `${__dirname}/${summaryCommunity1Path}`;
 
                         console.log("Logging to: " + logCommunity1Path);
 
@@ -129,7 +124,8 @@ const configs = JSON.parse(configsData);
 # Converting file: ${inputFile}
 # Using tools: IfcConvert, xeokit-metadata and convert2xkt
 # More info: 
-#----------------------------------------------------------------------------\n`, {encoding: 'utf8'});
+# - https://xeokit.notion.site/Converting-IFC-Models-to-XKT-using-Open-Source-Tools-A-Simpler-Pipeline-02d45ba457eb4f808f63bcacb71a4fb3
+#----------------------------------------------------------------------------\n`, { encoding: 'utf8' });
 
                         let glbConvertedOK = false;
                         let xktConvertedOK = false;
@@ -143,19 +139,19 @@ const configs = JSON.parse(configsData);
 
                         try {
                             fs.appendFileSync(logCommunity1PathAbs, `\n\n# IfcConvert\n\n${configs.paths["IfcConvert"]} ${inputFilePath} ${glbCommunity1PathAbs} --use-element-guids --no-progress  --force-space-transparency 0.4\n`);
-                            execSync(`${configs.paths["IfcConvert"]} ${inputFilePath} ${glbCommunity1PathAbs} --use-element-guids --no-progress --force-space-transparency 0.4 -v >> ${logCommunity1PathAbs}`, {stdio: 'inherit'});
+                            execSync(`${configs.paths["IfcConvert"]} ${inputFilePath} ${glbCommunity1PathAbs} --use-element-guids --no-progress --force-space-transparency 0.4 -v >> ${logCommunity1PathAbs}`, { stdio: 'inherit' });
 
                             xktManifest.glbFiles.push(glbCommunity1PathAbs.replace(/^.*[\\\/]/, ''));
                             glbConvertedOK = true;
 
                             fs.appendFileSync(logCommunity1PathAbs, `\n\n# xeokit-metadata\n\n${configs.paths["xeokit-metadata"]} ${inputFilePath} ${jsonCommunity1PathAbs}\n`);
-                            execSync(`${configs.paths["xeokit-metadata"]} ${inputFilePath} ${jsonCommunity1PathAbs} >> ${logCommunity1PathAbs}`, {stdio: 'inherit'});
+                            execSync(`${configs.paths["xeokit-metadata"]} ${inputFilePath} ${jsonCommunity1PathAbs} >> ${logCommunity1PathAbs}`, { stdio: 'inherit' });
 
                             xktManifest.metadataFiles.push(jsonCommunity1PathAbs.replace(/^.*[\\\/]/, ''));
                             jsonConvertedOK = true;
 
                             fs.appendFileSync(logCommunity1PathAbs, `\n\n# convert2xkt\n\nnode ${configs.paths["convert2xkt"]} -s ${glbCommunity1PathAbs} -m ${jsonCommunity1PathAbs} -o ${xktCommunity1PathAbs} -l\n`);
-                            execSync(`node --max-old-space-size=12000 ${configs.paths["convert2xkt"]} -s ${glbCommunity1PathAbs} -m ${jsonCommunity1PathAbs} -o ${xktCommunity1PathAbs} -l >> ${logCommunity1PathAbs}`, {stdio: 'inherit'});
+                            execSync(`node --max-old-space-size=12000 ${configs.paths["convert2xkt"]} -s ${glbCommunity1PathAbs} -m ${jsonCommunity1PathAbs} -o ${xktCommunity1PathAbs} -l >> ${logCommunity1PathAbs}`, { stdio: 'inherit' });
 
                             xktManifest.xktFiles.push(xktCommunity1PathAbs.replace(/^.*[\\\/]/, ''));
                             xktConvertedOK = true;
@@ -182,8 +178,6 @@ const configs = JSON.parse(configsData);
                         const glbEnterprise1PathAbs = `${__dirname}/${glbEnterprise1Path}`;
                         const jsonEnterprise1Path = path.join(enterprise1DirPath, `model.json`);
                         const jsonEnterprise1PathAbs = `${__dirname}/${jsonEnterprise1Path}`;
-                        // const xktEnterprise1Path = path.join(enterprise1DirPath, `model.xkt`);
-                        // const xktEnterprise1PathAbs = `${__dirname}/${xktEnterprise1Path}`;
                         const logEnterprise1Path = path.join(enterprise1DirPath, `log.txt`);
                         const logEnterprise1PathAbs = `${__dirname}/${logEnterprise1Path}`;
 
@@ -193,19 +187,26 @@ const configs = JSON.parse(configsData);
                         fs.writeFileSync(logEnterprise1PathAbs, `#----------------------------------------------------------------------------
 # CxConverter IFC Conversion Pipeline Log
 #
+# ${date}
+#
 # Converting file: ${inputFile}
 # Using tools: ifc2gltf and convert2xkt
-# Date: ${date}
-#----------------------------------------------------------------------------\n\n`, {encoding: 'utf8'});
+# - https://xeokit.notion.site/Converting-IFC-to-XKT-using-ifc2gltf-a2e0005d00dc4f22b648f1237bc3245d 
+#----------------------------------------------------------------------------\n\n`, { encoding: 'utf8' });
 
                         glbConvertedOK = false;
                         xktConvertedOK = false;
                         jsonConvertedOK = false;
 
+                        xktManifest = {
+                            xktFiles: [],
+                            glbFiles: [],
+                            metadataFiles: []
+                        };
 
                         try {
                             fs.appendFileSync(logEnterprise1PathAbs, `\n\n# ifc2gltf\n\n${configs.paths["ifc2gltf"]} -s 5 -i ${inputFilePath} -o ${glbEnterprise1PathAbs} -m ${jsonEnterprise1PathAbs}\n`);
-                            execSync(`${configs.paths["ifc2gltf"]} -s 5 -i ${inputFilePath} -o ${glbEnterprise1PathAbs} -m ${jsonEnterprise1PathAbs} >> ${logEnterprise1PathAbs}`, {stdio: 'inherit'});
+                            execSync(`${configs.paths["ifc2gltf"]} -s 5 -i ${inputFilePath} -o ${glbEnterprise1PathAbs} -m ${jsonEnterprise1PathAbs} >> ${logEnterprise1PathAbs}`, { stdio: 'inherit' });
                             glbConvertedOK = true;
                         } catch (e) {
                             fs.appendFileSync(logEnterprise1PathAbs, `\n\n[Error]: ${e}\n`);
@@ -215,12 +216,6 @@ const configs = JSON.parse(configsData);
                             const manifest = JSON.parse(fs.readFileSync(manifestEnterprise1Path));
                             const gltfOutFiles = manifest.gltfOutFiles || [];
                             const metadataOutFiles = manifest.metadataOutFiles || [];
-
-                            xktManifest = {
-                                xktFiles: [],
-                                glbFiles: [],
-                                metadataFiles: []
-                            };
 
                             for (let i = 0, len = gltfOutFiles.length; i < len; i++) {
 
@@ -234,7 +229,7 @@ const configs = JSON.parse(configsData);
 
                                 try {
                                     fs.appendFileSync(logEnterprise1PathAbs, `\n\n# convert2xkt\n\n${configs.paths["convert2xkt"]} -s ${gltfFilePath} -m ${metadataFilePath} -o ${xktFilePath} -l \n`);
-                                    execSync(`node --max-old-space-size=24000 ${configs.paths["convert2xkt"]} -s ${gltfFilePath} -m ${metadataFilePath} -o ${xktFilePath} -l >> ${logEnterprise1PathAbs}`, {stdio: 'inherit'});
+                                    execSync(`node --max-old-space-size=24000 ${configs.paths["convert2xkt"]} -s ${gltfFilePath} -m ${metadataFilePath} -o ${xktFilePath} -l >> ${logEnterprise1PathAbs}`, { stdio: 'inherit' });
                                     xktConvertedOK = true;
                                     jsonConvertedOK = true;
                                 } catch (e) {
@@ -248,6 +243,58 @@ const configs = JSON.parse(configsData);
                         }
 
                         conversionSummary.pipelines["ifcCXConverterPipeline1"] = {
+                            "xktConvertedOK": xktConvertedOK,
+                            "glbConvertedOK": glbConvertedOK,
+                            "jsonConvertedOK": jsonConvertedOK,
+                            "xktManifest": xktManifest
+                        };
+
+                        //-------------------------------------------------------------------------------------------------------------------------------------
+                        //
+                        //-------------------------------------------------------------------------------------------------------------------------------------
+
+                        const multiFormatDirPath = `${modelResultsDirPath}/ifcMultiFormatPipeline1`;
+
+                        const xktMultiFormatPath = path.join(multiFormatDirPath, `model.xkt`);
+                        const xktMultiFormatPathAbs = `${__dirname}/${xktMultiFormatPath}`;
+                        const logMultiFormatPath = path.join(multiFormatDirPath, `log.txt`);
+                        const logMultiFormatPathAbs = `${__dirname}/${logMultiFormatPath}`;
+
+                        console.log("Logging to: " + logMultiFormatPath);
+
+                        fs.mkdirSync(multiFormatDirPath);
+                        fs.writeFileSync(logMultiFormatPathAbs, `#----------------------------------------------------------------------------
+# Multi-Format Conversion Pipeline Log
+#
+# ${date}
+#
+# Converting file: ${inputFile}
+# Using tools: convert2xkt
+# More info:
+# - https://xeokit.notion.site/Converting-Models-to-XKT-with-convert2xkt-fa567843313f4db8a7d6535e76da9380
+#----------------------------------------------------------------------------\n\n`, { encoding: 'utf8' });
+
+                        glbConvertedOK = false;
+                        xktConvertedOK = false;
+                        jsonConvertedOK = false;
+
+                        xktManifest = {
+                            xktFiles: [],
+                            glbFiles: [],
+                            metadataFiles: []
+                        };
+
+                        try {
+                            fs.appendFileSync(logMultiFormatPathAbs, `\n\n# convert2xkt\n\n${tools.convert2xkt} -s ${inputFilePath} -o ${xktMultiFormatPathAbs} -l \n`);
+                            execSync(`node --max-old-space-size=24000 ${tools.convert2xkt} -s ${inputFilePath} -o ${xktMultiFormatPathAbs} -l >> ${logMultiFormatPathAbs}`, { stdio: 'inherit' });
+
+                            xktManifest.xktFiles.push(xktMultiFormatPathAbs.replace(/^.*[\\\/]/, ''));
+                            xktConvertedOK = true;
+                        } catch (e) {
+                            fs.appendFileSync(logMultiFormatPathAbs, `\n\n[Error]: ${e}\n`);
+                        }
+
+                        conversionSummary.pipelines["ifcMultiFormatPipeline1"] = {
                             "xktConvertedOK": xktConvertedOK,
                             "glbConvertedOK": glbConvertedOK,
                             "jsonConvertedOK": jsonConvertedOK,
@@ -272,7 +319,7 @@ const configs = JSON.parse(configsData);
             }
         }
 
-        fs.writeFileSync("./_includes/conversionResults.html", conversionResultsHTML.join("\n"), {encoding: 'utf8'});
+        fs.writeFileSync("./_includes/conversionResults.html", conversionResultsHTML.join("\n"), { encoding: 'utf8' });
 
     } catch (e) {
         console.error("[Error] ", e);
